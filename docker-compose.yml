@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: docker.io/postgres:16-alpine
+    container_name: kabari-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kabari_db
+      POSTGRES_USER: kabari_user
+      POSTGRES_PASSWORD: kabari_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kabari_user -d kabari_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: docker.io/redis:7-alpine
+    container_name: kabari-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: docker.io/adminer:latest
+    container_name: kabari-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha
+
+volumes:
+  postgres_data:
+  redis_data:
