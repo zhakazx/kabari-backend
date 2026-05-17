@@ -3,12 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Event } from '../../events/entities/event.entity';
+import { Payment } from './payment.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -48,6 +50,9 @@ export class Order {
   @ManyToOne(() => Event, (event) => event.id, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'event_id' })
   event: Event;
+
+  @OneToMany(() => Payment, (payment) => payment.order)
+  payments: Payment[];
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;

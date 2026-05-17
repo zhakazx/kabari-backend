@@ -13,6 +13,7 @@ import { PaymentCallbackDto } from './dto/payment-callback.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
 
@@ -48,6 +49,7 @@ export class OrdersController {
     return this.ordersService.createPayment(createPaymentDto);
   }
 
+  @Public()
   @Post('payments/callback')
   async handleCallback(@Body() callbackDto: PaymentCallbackDto) {
     return this.ordersService.handlePaymentCallback(callbackDto);
