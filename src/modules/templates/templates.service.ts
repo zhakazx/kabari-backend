@@ -29,6 +29,34 @@ export class TemplatesService {
     return this.templateRepository.save(template);
   }
 
+  async findAllAdmin(query: TemplateQueryDto) {
+    const { page, limit } = query;
+    const skip = (page! - 1) * limit!;
+
+    const [data, total] = await this.templateRepository.findAndCount({
+      relations: ['creator'],
+      select: {
+        creator: {
+          id: true,
+          full_name: true,
+        },
+      },
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page: page,
+        limit: limit,
+        total_pages: Math.ceil(total / limit!),
+      },
+    };
+  }
+
   async findAllPublic(query: TemplateQueryDto) {
     const { category, keyword, page, limit } = query;
     const skip = (page! - 1) * limit!;

@@ -104,4 +104,11 @@ export class TemplatesController {
   ) {
     return this.templatesService.findByCreator(user.user_id, query);
   }
+
+  @Get('admin/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findAllAdmin(@Query() query: TemplateQueryDto) {
+    return this.templatesService.findAllAdmin(query);
+  }
 }
