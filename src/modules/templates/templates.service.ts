@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { Template, TemplateStatus } from './entities/template.entity';
 import { CreateTemplateDto } from './dto/create-template.dto';
+import { UpdateTemplateDto } from './dto/update-template.dto';
 import { UpdateTemplateStatusDto } from './dto/update-template-status.dto';
 import { TemplateQueryDto } from './dto/template-query.dto';
 
@@ -127,6 +128,28 @@ export class TemplatesService {
         total_pages: Math.ceil(total / limit!),
       },
     };
+  }
+
+  async update(
+    id: string,
+    creatorId: string,
+    updateDto: UpdateTemplateDto,
+    thumbnailUrl?: string,
+    fileUrl?: string,
+  ): Promise<Template> {
+    const template = await this.findOne(id);
+    if (template.creator_id !== creatorId) {
+      throw new ForbiddenException('You can only update your own templates');
+    }
+
+    if (updateDto.name !== undefined) template.name = updateDto.name;
+    if (updateDto.category !== undefined) template.category = updateDto.category;
+    if (updateDto.description !== undefined) template.description = updateDto.description;
+    if (updateDto.price !== undefined) template.price = updateDto.price;
+    if (thumbnailUrl !== undefined) template.thumbnail_url = thumbnailUrl;
+    if (fileUrl !== undefined) template.file_url = fileUrl;
+
+    return this.templateRepository.save(template);
   }
 
   async updateStatus(
