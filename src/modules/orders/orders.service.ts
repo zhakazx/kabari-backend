@@ -10,6 +10,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { MockPaymentGateway } from './gateways/mock-payment.gateway';
 import { NotificationsService } from '../notifications/notifications.service';
+import { ORDER_PACKAGES } from './orders.constants';
 
 @Injectable()
 export class OrdersService {
@@ -36,6 +37,10 @@ export class OrdersService {
       status: OrderStatus.PENDING,
     });
     return this.orderRepository.save(order);
+  }
+
+  getPackages() {
+    return ORDER_PACKAGES;
   }
 
   async findAllByPelanggan(pelangganId: string): Promise<Order[]> {

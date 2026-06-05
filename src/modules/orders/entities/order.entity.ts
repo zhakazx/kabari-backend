@@ -11,6 +11,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Event } from '../../events/entities/event.entity';
 import { Payment } from './payment.entity';
+import { PaymentMethod } from './payment.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -29,6 +30,13 @@ export class Order {
 
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   total_amount: number;
+
+  @Column({
+    type: 'enum',
+    enum: PaymentMethod,
+    nullable: true,
+  })
+  preferred_payment_method?: PaymentMethod | null;
 
   @Column({
     type: 'enum',

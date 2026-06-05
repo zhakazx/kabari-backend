@@ -37,6 +37,12 @@ export class OrdersController {
     return this.ordersService.findAllByPelanggan(user.user_id);
   }
 
+  @Get('packages')
+  @Roles(UserRole.PELANGGAN)
+  getPackages() {
+    return this.ordersService.getPackages();
+  }
+
   @Get(':id')
   @Roles(UserRole.PELANGGAN)
   findOne(@Param('id') id: string) {
