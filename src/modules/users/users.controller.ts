@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,6 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from './entities/user.entity';
 
 @Controller('users')
@@ -39,7 +41,14 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: { user_id: string; role: UserRole },
+  ) {
+    if (user.role !== UserRole.ADMIN && user.user_id !== id) {
+      throw new ForbiddenException('Anda tidak memiliki akses untuk mengubah pengguna ini');
+    }
     return this.usersService.update(id, updateUserDto);
   }
 
