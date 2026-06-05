@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('reports')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -16,8 +17,9 @@ export class ReportsController {
   async downloadGuestReportXLSX(
     @Param('eventId') eventId: string,
     @Res() res: Response,
+    @CurrentUser() user: { user_id: string },
   ) {
-    const buffer = await this.reportsService.generateGuestReportXLSX(eventId);
+    const buffer = await this.reportsService.generateGuestReportXLSX(eventId, user.user_id);
 
     res.setHeader(
       'Content-Type',

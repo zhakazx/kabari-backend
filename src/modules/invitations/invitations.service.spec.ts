@@ -60,12 +60,13 @@ describe('InvitationsService', () => {
   describe('createBatch', () => {
     it('should create invitations with QR tokens for each guest', async () => {
       const eventId = 'event-123';
+      const ownerId = 'user-123';
       const guests: CreateGuestDto[] = [
         { tamu_name: 'John Doe', tamu_phone: '08123456789', category: InvitationCategory.DIGITAL },
         { tamu_name: 'Jane Doe', tamu_email: 'jane@example.com' },
       ];
 
-      eventRepository.findOne.mockResolvedValue({ id: eventId } as Event);
+      eventRepository.findOne.mockResolvedValue({ id: eventId, pelanggan_id: ownerId } as Event);
       invitationRepository.save.mockImplementation((invitations: any) =>
         Promise.resolve(
           Array.isArray(invitations)
@@ -74,7 +75,7 @@ describe('InvitationsService', () => {
         ),
       );
 
-      const result = await service.createBatch(eventId, guests);
+      const result = await service.createBatch(eventId, guests, ownerId);
 
       expect(eventRepository.findOne).toHaveBeenCalledWith({
         where: { id: eventId },
@@ -89,7 +90,7 @@ describe('InvitationsService', () => {
       eventRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.createBatch('non-existent', [{ tamu_name: 'Test' }]),
+        service.createBatch('non-existent', [{ tamu_name: 'Test' }], 'user-123'),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -100,6 +101,7 @@ describe('InvitationsService', () => {
         id: '1',
         qr_code_token: 'token-123',
         tamu_name: 'John',
+        event: { status: 'active' },
       } as Invitation;
 
       invitationRepository.findOne.mockResolvedValue(invitation);
@@ -123,6 +125,7 @@ describe('InvitationsService', () => {
         id: '1',
         qr_code_token: 'token-123',
         rsvp_status: RsvpStatus.PENDING,
+        event: { status: 'active' },
       } as Invitation;
 
       const updateDto: UpdateRsvpDto = {

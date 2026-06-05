@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invitation, InvitationCategory, RsvpStatus } from './entities/invitation.entity';
@@ -20,12 +20,16 @@ export class InvitationsService {
   async createBatch(
     eventId: string,
     guests: CreateGuestDto[],
+    ownerId: string,
   ): Promise<Invitation[]> {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
     });
     if (!event) {
       throw new NotFoundException(`Event with ID "${eventId}" not found`);
+    }
+    if (event.pelanggan_id !== ownerId) {
+      throw new ForbiddenException('You do not have access to this event');
     }
 
     const invitations: Invitation[] = [];
@@ -59,6 +63,9 @@ export class InvitationsService {
     });
     if (!invitation) {
       throw new NotFoundException('Invitation not found');
+    }
+    if (!invitation.event || invitation.event.status !== EventStatus.ACTIVE) {
+      throw new ForbiddenException('Event is not active');
     }
     return invitation;
   }

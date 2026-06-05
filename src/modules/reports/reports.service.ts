@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invitation } from '../invitations/entities/invitation.entity';
@@ -14,13 +14,16 @@ export class ReportsService {
     private readonly eventRepository: Repository<Event>,
   ) {}
 
-  async generateGuestReportXLSX(eventId: string): Promise<Buffer> {
+  async generateGuestReportXLSX(eventId: string, ownerId: string): Promise<Buffer> {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
     });
 
     if (!event) {
-      throw new Error('Event not found');
+      throw new NotFoundException('Event not found');
+    }
+    if (event.pelanggan_id !== ownerId) {
+      throw new ForbiddenException('You do not have access to this report');
     }
 
     const invitations = await this.invitationRepository.find({

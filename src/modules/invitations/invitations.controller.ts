@@ -29,8 +29,7 @@ export class InvitationsController {
     @Body('guests') guests: CreateGuestDto[],
     @CurrentUser() user: { user_id: string },
   ) {
-    // TODO: Verify that the event belongs to the current user
-    return this.invitationsService.createBatch(eventId, guests);
+    return this.invitationsService.createBatch(eventId, guests, user.user_id);
   }
 
   @Get('event/:eventId')
