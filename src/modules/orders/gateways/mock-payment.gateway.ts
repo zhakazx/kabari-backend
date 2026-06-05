@@ -8,9 +8,12 @@ import {
 
 export class MockPaymentGateway implements IPaymentGateway {
   async createPayment(request: CreatePaymentRequest): Promise<PaymentResponse> {
+    const isQris = request.paymentMethod === 'qris';
+    
     return {
       paymentId: `mock_${Date.now()}`,
-      virtualAccount: `VA${Math.random().toString(36).substring(2, 10)}`,
+      virtualAccount: isQris ? undefined : `VA${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+      qrString: isQris ? `00020101021126670016COM.GO-JEK.WWW0118936009143${Math.floor(Math.random() * 10000)}` : undefined,
       amount: request.amount,
       expiredAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     };

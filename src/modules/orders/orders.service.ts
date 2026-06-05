@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
@@ -90,6 +91,22 @@ export class OrdersService {
 
     savedPayment.external_ref = gatewayResponse.paymentId;
     await this.paymentRepository.save(savedPayment);
+
+    // Auto verify payment for testing/simulation purposes (5 seconds delay)
+    setTimeout(() => {
+      const secret = process.env.PAYMENT_WEBHOOK_SECRET || 'default-secret';
+      const referenceNo = `mock_ref_${Date.now()}`;
+      const payload = `${invoiceNumber}:paid:${referenceNo}`;
+      const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
+      this.handlePaymentCallback({
+        invoice_id: invoiceNumber,
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        reference_no: referenceNo,
+        signature: signature
+      }).catch(console.error);
+    }, 5000);
 
     return {
       payment_id: savedPayment.id,
