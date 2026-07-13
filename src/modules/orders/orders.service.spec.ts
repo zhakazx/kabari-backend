@@ -172,16 +172,16 @@ describe('OrdersService', () => {
       paymentRepository.save.mockResolvedValue({
         ...payment,
         status: PaymentStatus.PAID,
-      } as Payment);
+      });
       orderRepository.save.mockResolvedValue({
         ...order,
         status: OrderStatus.PAID,
-      } as Order);
+      });
       eventRepository.findOne.mockResolvedValue(event);
       eventRepository.save.mockResolvedValue({
         ...event,
         status: EventStatus.ACTIVE,
-      } as Event);
+      });
 
       // Mock the callback with a valid signature by using the same logic
       const callbackData = {
@@ -193,7 +193,9 @@ describe('OrdersService', () => {
       };
 
       // Mock the gateway's validateCallback to always return true for testing
-      jest.spyOn((service as any).paymentGateway, 'validateCallback').mockReturnValue(true);
+      jest
+        .spyOn((service as any).paymentGateway, 'validateCallback')
+        .mockReturnValue(true);
 
       const result = await service.handlePaymentCallback(callbackData);
 

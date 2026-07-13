@@ -1,19 +1,15 @@
-import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TemplateStatus } from '../entities/template.entity';
+import { UserRole } from '../entities/user.entity';
 
-export class TemplateQueryDto {
-  @IsOptional()
-  @IsString()
-  category?: string;
-
+export class UserQueryDto {
   @IsOptional()
   @IsString()
   keyword?: string;
 
   @IsOptional()
-  @IsEnum(TemplateStatus)
-  status?: TemplateStatus;
+  @IsEnum(UserRole)
+  role?: UserRole;
 
   @IsOptional()
   @Type(() => Number)
@@ -25,5 +21,6 @@ export class TemplateQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100)
   limit?: number = 20;
 }

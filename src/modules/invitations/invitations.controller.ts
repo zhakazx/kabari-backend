@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
+import { InvitationQueryDto } from './dto/invitation-query.dto';
 import { CreateGuestDto } from './dto/create-invitation.dto';
 import { UpdateRsvpDto } from './dto/update-rsvp.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -35,8 +36,11 @@ export class InvitationsController {
   @Get('event/:eventId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PELANGGAN)
-  findByEvent(@Param('eventId') eventId: string) {
-    return this.invitationsService.findByEvent(eventId);
+  findByEvent(
+    @Param('eventId') eventId: string,
+    @Query() query: InvitationQueryDto,
+  ) {
+    return this.invitationsService.findByEvent(eventId, query);
   }
 
   @Get(':token')

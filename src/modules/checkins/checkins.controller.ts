@@ -1,5 +1,6 @@
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param, Query } from '@nestjs/common';
 import { CheckinsService } from './checkins.service';
+import { CheckInQueryDto } from './dto/checkin-query.dto';
 import { CreateCheckInDto } from './dto/create-check-in.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -24,7 +25,10 @@ export class CheckinsController {
   @Get('event/:eventId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.PELANGGAN, UserRole.PENERIMA_TAMU)
-  findByEvent(@Param('eventId') eventId: string) {
-    return this.checkinsService.findByEvent(eventId);
+  findByEvent(
+    @Param('eventId') eventId: string,
+    @Query() query: CheckInQueryDto,
+  ) {
+    return this.checkinsService.findByEvent(eventId, query);
   }
 }

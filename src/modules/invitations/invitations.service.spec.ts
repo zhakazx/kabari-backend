@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InvitationsService } from './invitations.service';
-import { Invitation, InvitationCategory, RsvpStatus } from './entities/invitation.entity';
+import {
+  Invitation,
+  InvitationCategory,
+  RsvpStatus,
+} from './entities/invitation.entity';
 import { Event } from '../events/entities/event.entity';
 import { CreateGuestDto } from './dto/create-invitation.dto';
 import { UpdateRsvpDto } from './dto/update-rsvp.dto';
@@ -62,15 +66,25 @@ describe('InvitationsService', () => {
       const eventId = 'event-123';
       const ownerId = 'user-123';
       const guests: CreateGuestDto[] = [
-        { tamu_name: 'John Doe', tamu_phone: '08123456789', category: InvitationCategory.DIGITAL },
+        {
+          tamu_name: 'John Doe',
+          tamu_phone: '08123456789',
+          category: InvitationCategory.DIGITAL,
+        },
         { tamu_name: 'Jane Doe', tamu_email: 'jane@example.com' },
       ];
 
-      eventRepository.findOne.mockResolvedValue({ id: eventId, pelanggan_id: ownerId } as Event);
+      eventRepository.findOne.mockResolvedValue({
+        id: eventId,
+        pelanggan_id: ownerId,
+      } as Event);
       invitationRepository.save.mockImplementation((invitations: any) =>
         Promise.resolve(
           Array.isArray(invitations)
-            ? invitations.map((inv: any, i: number) => ({ ...inv, id: `inv-${i}` }))
+            ? invitations.map((inv: any, i: number) => ({
+                ...inv,
+                id: `inv-${i}`,
+              }))
             : [{ ...invitations, id: 'inv-0' }],
         ),
       );
@@ -90,7 +104,11 @@ describe('InvitationsService', () => {
       eventRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.createBatch('non-existent', [{ tamu_name: 'Test' }], 'user-123'),
+        service.createBatch(
+          'non-existent',
+          [{ tamu_name: 'Test' }],
+          'user-123',
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -137,7 +155,7 @@ describe('InvitationsService', () => {
       invitationRepository.save.mockResolvedValue({
         ...invitation,
         ...updateDto,
-      } as Invitation);
+      });
 
       const result = await service.updateRsvp('token-123', updateDto);
 

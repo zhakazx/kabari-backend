@@ -2,8 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RsvpService } from './rsvp.service';
-import { RsvpConfirmation, RsvpConfirmationStatus } from './entities/rsvp-confirmation.entity';
-import { Invitation, RsvpStatus } from '../invitations/entities/invitation.entity';
+import {
+  RsvpConfirmation,
+  RsvpConfirmationStatus,
+} from './entities/rsvp-confirmation.entity';
+import {
+  Invitation,
+  RsvpStatus,
+} from '../invitations/entities/invitation.entity';
 import { CreateRsvpDto } from './dto/create-rsvp.dto';
 import { NotFoundException } from '@nestjs/common';
 import { DashboardGateway } from '../../gateways/dashboard.gateway';
@@ -89,7 +95,7 @@ describe('RsvpService', () => {
         ...invitation,
         rsvp_status: RsvpStatus.HADIR,
         jumlah_hadir: 2,
-      } as Invitation);
+      });
       rsvpRepository.save.mockResolvedValue({
         id: 'rsvp-1',
         invitation_id: invitation.id,

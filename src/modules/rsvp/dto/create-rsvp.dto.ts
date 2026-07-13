@@ -1,4 +1,12 @@
-import { IsEnum, IsOptional, IsInt, Min, IsString, IsBoolean, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsInt,
+  Min,
+  IsString,
+  IsBoolean,
+  IsUUID,
+} from 'class-validator';
 import { RsvpConfirmationStatus } from '../entities/rsvp-confirmation.entity';
 
 export class CreateRsvpDto {

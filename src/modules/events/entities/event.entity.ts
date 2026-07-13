@@ -57,7 +57,9 @@ export class Event {
   @Column({ type: 'uuid', nullable: true })
   template_id: string;
 
-  @ManyToOne(() => Template, (template) => template.id, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Template, (template) => template.id, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'template_id' })
   template: Template;
 

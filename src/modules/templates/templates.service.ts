@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { Template, TemplateStatus } from './entities/template.entity';
@@ -31,10 +35,14 @@ export class TemplatesService {
   }
 
   async findAllAdmin(query: TemplateQueryDto) {
-    const { page, limit } = query;
+    const { page, limit, status } = query;
     const skip = (page! - 1) * limit!;
 
+    const where: any = {};
+    if (status) where.status = status;
+
     const [data, total] = await this.templateRepository.findAndCount({
+      where,
       relations: ['creator'],
       select: {
         creator: {
@@ -47,6 +55,11 @@ export class TemplatesService {
       order: { created_at: 'DESC' },
     });
 
+    const counts: Record<string, number> = {};
+    for (const s of Object.values(TemplateStatus)) {
+      counts[s] = await this.templateRepository.count({ where: { status: s } });
+    }
+
     return {
       data,
       meta: {
@@ -55,6 +68,7 @@ export class TemplatesService {
         limit: limit,
         total_pages: Math.ceil(total / limit!),
       },
+      counts,
     };
   }
 
@@ -143,8 +157,10 @@ export class TemplatesService {
     }
 
     if (updateDto.name !== undefined) template.name = updateDto.name;
-    if (updateDto.category !== undefined) template.category = updateDto.category;
-    if (updateDto.description !== undefined) template.description = updateDto.description;
+    if (updateDto.category !== undefined)
+      template.category = updateDto.category;
+    if (updateDto.description !== undefined)
+      template.description = updateDto.description;
     if (updateDto.price !== undefined) template.price = updateDto.price;
     if (thumbnailUrl !== undefined) template.thumbnail_url = thumbnailUrl;
     if (fileUrl !== undefined) template.file_url = fileUrl;

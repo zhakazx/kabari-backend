@@ -19,7 +19,10 @@ export class ReportsController {
     @Res() res: Response,
     @CurrentUser() user: { user_id: string },
   ) {
-    const buffer = await this.reportsService.generateGuestReportXLSX(eventId, user.user_id);
+    const buffer = await this.reportsService.generateGuestReportXLSX(
+      eventId,
+      user.user_id,
+    );
 
     res.setHeader(
       'Content-Type',

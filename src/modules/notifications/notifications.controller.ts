@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Param } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
+import { NotificationQueryDto } from './dto/notification-query.dto';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -16,7 +17,10 @@ export class NotificationsController {
   }
 
   @Get()
-  findByUser(@CurrentUser() user: { user_id: string }) {
-    return this.notificationsService.findByUser(user.user_id);
+  findByUser(
+    @CurrentUser() user: { user_id: string },
+    @Query() query: NotificationQueryDto,
+  ) {
+    return this.notificationsService.findByUser(user.user_id, query);
   }
 }

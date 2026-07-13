@@ -1,4 +1,12 @@
-import { IsString, IsNumber, IsEnum, IsOptional, MinLength, IsDecimal, Min } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  MinLength,
+  IsDecimal,
+  Min,
+} from 'class-validator';
 import { TemplateStatus } from '../entities/template.entity';
 
 export class CreateTemplateDto {

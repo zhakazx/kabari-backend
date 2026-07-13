@@ -103,8 +103,7 @@ describe('AuthService', () => {
         full_name: 'Test User',
         email: loginDto.email,
         role: UserRole.PELANGGAN,
-        password_hash:
-          '$2b$10$mockedhashformatchingpasswordvalidation',
+        password_hash: '$2b$10$mockedhashformatchingpasswordvalidation',
         created_at: new Date(),
         updated_at: new Date(),
       } as any);

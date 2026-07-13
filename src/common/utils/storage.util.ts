@@ -12,11 +12,7 @@ export const storageConfig = (dest: string) =>
     },
   });
 
-export const imageFileFilter = (
-  _req: any,
-  file: any,
-  callback: any,
-) => {
+export const imageFileFilter = (_req: any, file: any, callback: any) => {
   if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
     return callback(
       new BadRequestException('Only image files are allowed!'),
@@ -26,11 +22,7 @@ export const imageFileFilter = (
   callback(null, true);
 };
 
-export const templateFileFilter = (
-  _req: any,
-  file: any,
-  callback: any,
-) => {
+export const templateFileFilter = (_req: any, file: any, callback: any) => {
   const allowedMimes = [
     'application/zip',
     'application/x-zip-compressed',

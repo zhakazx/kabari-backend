@@ -41,7 +41,10 @@ describe('AnalyticsService', () => {
         { provide: getRepositoryToken(Template), useFactory: mockRepository },
         { provide: getRepositoryToken(Order), useFactory: mockRepository },
         { provide: getRepositoryToken(Invitation), useFactory: mockRepository },
-        { provide: getRepositoryToken(TemplateSale), useFactory: mockRepository },
+        {
+          provide: getRepositoryToken(TemplateSale),
+          useFactory: mockRepository,
+        },
       ],
     }).compile();
 
@@ -56,31 +59,39 @@ describe('AnalyticsService', () => {
     it('should return platform KPI data', async () => {
       // Override mock repositories with specific return values
       (service as any).userRepository.count = jest.fn().mockResolvedValue(100);
-      (service as any).userRepository.createQueryBuilder = createMockQueryBuilder([
-        { role: 'pelanggan', count: '80' },
-        { role: 'kreator', count: '20' },
-      ]);
+      (service as any).userRepository.createQueryBuilder =
+        createMockQueryBuilder([
+          { role: 'pelanggan', count: '80' },
+          { role: 'kreator', count: '20' },
+        ]);
 
       (service as any).eventRepository.count = jest.fn().mockResolvedValue(50);
-      (service as any).eventRepository.createQueryBuilder = createMockQueryBuilder([
-        { status: 'active', count: '30' },
-        { status: 'draft', count: '20' },
-      ]);
+      (service as any).eventRepository.createQueryBuilder =
+        createMockQueryBuilder([
+          { status: 'active', count: '30' },
+          { status: 'draft', count: '20' },
+        ]);
 
-      (service as any).templateRepository.count = jest.fn().mockResolvedValue(25);
-      (service as any).templateRepository.createQueryBuilder = createMockQueryBuilder([
-        { status: 'published', count: '20' },
-        { status: 'pending_review', count: '5' },
-      ]);
+      (service as any).templateRepository.count = jest
+        .fn()
+        .mockResolvedValue(25);
+      (service as any).templateRepository.createQueryBuilder =
+        createMockQueryBuilder([
+          { status: 'published', count: '20' },
+          { status: 'pending_review', count: '5' },
+        ]);
 
-      (service as any).orderRepository.createQueryBuilder = createMockQueryBuilder([
-        { status: 'paid', count: '10' },
-        { status: 'pending', count: '5' },
-      ]);
+      (service as any).orderRepository.createQueryBuilder =
+        createMockQueryBuilder([
+          { status: 'paid', count: '10' },
+          { status: 'pending', count: '5' },
+        ]);
       // Override getRawOne specifically for revenue
       const mockQb = (service as any).orderRepository.createQueryBuilder();
       mockQb.getRawOne = jest.fn().mockResolvedValue({ total: '1500000' });
-      (service as any).orderRepository.createQueryBuilder = jest.fn(() => mockQb);
+      (service as any).orderRepository.createQueryBuilder = jest.fn(
+        () => mockQb,
+      );
 
       const result = await service.getPlatformKpi();
 
@@ -97,11 +108,14 @@ describe('AnalyticsService', () => {
 
   describe('getEventAnalytics', () => {
     it('should return event analytics', async () => {
-      (service as any).invitationRepository.count = jest.fn().mockResolvedValue(100);
-      (service as any).invitationRepository.createQueryBuilder = createMockQueryBuilder([
-        { status: 'hadir', count: '80' },
-        { status: 'tidak_hadir', count: '20' },
-      ]);
+      (service as any).invitationRepository.count = jest
+        .fn()
+        .mockResolvedValue(100);
+      (service as any).invitationRepository.createQueryBuilder =
+        createMockQueryBuilder([
+          { status: 'hadir', count: '80' },
+          { status: 'tidak_hadir', count: '20' },
+        ]);
 
       const result = await service.getEventAnalytics('event-123');
 
@@ -115,15 +129,16 @@ describe('AnalyticsService', () => {
 
   describe('getCreatorAnalytics', () => {
     it('should return creator analytics', async () => {
-      (service as any).templateSaleRepository.createQueryBuilder = createMockQueryBuilder([
-        {
-          creator_id: 'user-1',
-          creator_name: 'Creator One',
-          total_templates: '5',
-          total_sales: '10',
-          total_royalty: '500000',
-        },
-      ]);
+      (service as any).templateSaleRepository.createQueryBuilder =
+        createMockQueryBuilder([
+          {
+            creator_id: 'user-1',
+            creator_name: 'Creator One',
+            total_templates: '5',
+            total_sales: '10',
+            total_royalty: '500000',
+          },
+        ]);
 
       const result = await service.getCreatorAnalytics();
 

@@ -10,7 +10,16 @@ import { Invitation } from '../invitations/entities/invitation.entity';
 import { TemplateSale } from '../orders/entities/template-sale.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Event, Template, Order, Invitation, TemplateSale])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Event,
+      Template,
+      Order,
+      Invitation,
+      TemplateSale,
+    ]),
+  ],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],
   exports: [AnalyticsService],

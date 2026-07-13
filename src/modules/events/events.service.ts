@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Event, EventStatus } from './entities/event.entity';
+import { EventQueryDto } from './dto/event-query.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 
@@ -12,7 +17,10 @@ export class EventsService {
     private readonly eventRepository: Repository<Event>,
   ) {}
 
-  async create(createEventDto: CreateEventDto, pelangganId: string): Promise<Event> {
+  async create(
+    createEventDto: CreateEventDto,
+    pelangganId: string,
+  ): Promise<Event> {
     const event = this.eventRepository.create({
       ...createEventDto,
       pelanggan_id: pelangganId,
@@ -21,12 +29,49 @@ export class EventsService {
     return this.eventRepository.save(event);
   }
 
-  async findAllByPelanggan(pelangganId: string): Promise<Event[]> {
-    return this.eventRepository.find({
+  async findAllByPelanggan(pelangganId: string, query: EventQueryDto = { page: 1, limit: 20 }) {
+    const { page, limit } = query;
+    const skip = (page! - 1) * limit!;
+
+    const [data, total] = await this.eventRepository.findAndCount({
       where: { pelanggan_id: pelangganId },
       relations: ['template'],
+      skip,
+      take: limit,
       order: { created_at: 'DESC' },
     });
+
+    const [activeCount, draftCount, completedCount, cancelledCount] =
+      await Promise.all([
+        this.eventRepository.count({
+          where: { pelanggan_id: pelangganId, status: EventStatus.ACTIVE },
+        }),
+        this.eventRepository.count({
+          where: { pelanggan_id: pelangganId, status: EventStatus.DRAFT },
+        }),
+        this.eventRepository.count({
+          where: { pelanggan_id: pelangganId, status: EventStatus.COMPLETED },
+        }),
+        this.eventRepository.count({
+          where: { pelanggan_id: pelangganId, status: EventStatus.CANCELLED },
+        }),
+      ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        total_pages: Math.ceil(total / limit!),
+      },
+      counts: {
+        active: activeCount,
+        draft: draftCount,
+        completed: completedCount,
+        cancelled: cancelledCount,
+      },
+    };
   }
 
   async findOne(id: string): Promise<Event> {
@@ -40,7 +85,11 @@ export class EventsService {
     return event;
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto, pelangganId: string): Promise<Event> {
+  async update(
+    id: string,
+    updateEventDto: UpdateEventDto,
+    pelangganId: string,
+  ): Promise<Event> {
     const event = await this.findOne(id);
     if (event.pelanggan_id !== pelangganId) {
       throw new ForbiddenException('You can only update your own events');
@@ -60,7 +109,9 @@ export class EventsService {
   async getDashboardStats(eventId: string, pelangganId: string) {
     const event = await this.findOne(eventId);
     if (event.pelanggan_id !== pelangganId) {
-      throw new ForbiddenException('You can only view your own event dashboard');
+      throw new ForbiddenException(
+        'You can only view your own event dashboard',
+      );
     }
 
     const result = await this.eventRepository.query(

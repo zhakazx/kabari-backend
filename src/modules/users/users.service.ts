@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { Repository, Like } from 'typeorm';
+import { User, UserRole } from './entities/user.entity';
+import { UserQueryDto } from './dto/user-query.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -22,8 +23,50 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(query: UserQueryDto) {
+    const { page, limit, keyword, role } = query;
+    const skip = (page! - 1) * limit!;
+
+    const where: any[] = [];
+
+    if (role && keyword) {
+      where.push(
+        { role, full_name: Like(`%${keyword}%`) },
+        { role, email: Like(`%${keyword}%`) },
+      );
+    } else if (keyword) {
+      where.push(
+        { full_name: Like(`%${keyword}%`) },
+        { email: Like(`%${keyword}%`) },
+      );
+    } else if (role) {
+      where.push({ role });
+    }
+
+    const finalWhere = where.length > 0 ? where : undefined;
+
+    const [data, total] = await this.userRepository.findAndCount({
+      where: finalWhere,
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
+
+    const counts: Record<string, number> = {};
+    for (const r of Object.values(UserRole)) {
+      counts[r] = await this.userRepository.count({ where: { role: r } });
+    }
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        total_pages: Math.ceil(total / limit!),
+      },
+      counts,
+    };
   }
 
   async findOne(id: string): Promise<User> {

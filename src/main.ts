@@ -23,7 +23,9 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get('Reflector')));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get('Reflector')),
+  );
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 

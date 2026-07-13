@@ -3,7 +3,12 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CheckinsService, CheckInResult } from './checkins.service';
 import { CheckIn } from './entities/check-in.entity';
-import { Invitation, CheckInStatus, RsvpStatus } from '../invitations/entities/invitation.entity';
+import {
+  Invitation,
+  CheckInStatus,
+  RsvpStatus,
+} from '../invitations/entities/invitation.entity';
+import { Event } from '../events/entities/event.entity';
 import { CreateCheckInDto } from './dto/create-check-in.dto';
 import { DashboardGateway } from '../../gateways/dashboard.gateway';
 
@@ -69,13 +74,14 @@ describe('CheckinsService', () => {
         rsvp_status: RsvpStatus.HADIR,
         check_in_status: CheckInStatus.BELUM_CHECK_IN,
         event_id: 'event-123',
+        event: { id: 'event-123', event_name: 'Pernikahan Andi' } as Event,
       } as Invitation;
 
       invitationRepository.findOne.mockResolvedValue(invitation);
       invitationRepository.save.mockResolvedValue({
         ...invitation,
         check_in_status: CheckInStatus.SUDAH_CHECK_IN,
-      } as Invitation);
+      });
       checkInRepository.save.mockResolvedValue({
         id: 'checkin-1',
         invitation_id: invitation.id,
@@ -86,6 +92,8 @@ describe('CheckinsService', () => {
 
       expect(result.check_in_status).toBe('sukses');
       expect(result.tamu_name).toBe('John Doe');
+      expect(result.event_id).toBe('event-123');
+      expect(result.event_name).toBe('Pernikahan Andi');
       expect(invitationRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({
           check_in_status: CheckInStatus.SUDAH_CHECK_IN,
@@ -107,6 +115,8 @@ describe('CheckinsService', () => {
       );
 
       expect(result.check_in_status).toBe('tidak_terdaftar');
+      expect(result.event_id).toBe('');
+      expect(result.event_name).toBe('');
       expect(checkInRepository.save).not.toHaveBeenCalled();
     });
 
@@ -117,6 +127,8 @@ describe('CheckinsService', () => {
         tamu_name: 'John Doe',
         rsvp_status: RsvpStatus.HADIR,
         check_in_status: CheckInStatus.SUDAH_CHECK_IN,
+        event_id: 'event-123',
+        event: { id: 'event-123', event_name: 'Pernikahan Andi' } as Event,
       } as Invitation;
 
       invitationRepository.findOne.mockResolvedValue(invitation);
@@ -127,6 +139,8 @@ describe('CheckinsService', () => {
       );
 
       expect(result.check_in_status).toBe('gagal');
+      expect(result.event_id).toBe('event-123');
+      expect(result.event_name).toBe('Pernikahan Andi');
       expect(checkInRepository.save).not.toHaveBeenCalled();
     });
   });

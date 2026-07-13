@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
   ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { UserQueryDto } from './dto/user-query.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -31,8 +33,8 @@ export class UsersController {
 
   @Get()
   @Roles(UserRole.ADMIN)
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() query: UserQueryDto) {
+    return this.usersService.findAll(query);
   }
 
   @Get(':id')
@@ -47,7 +49,9 @@ export class UsersController {
     @CurrentUser() user: { user_id: string; role: UserRole },
   ) {
     if (user.role !== UserRole.ADMIN && user.user_id !== id) {
-      throw new ForbiddenException('Anda tidak memiliki akses untuk mengubah pengguna ini');
+      throw new ForbiddenException(
+        'Anda tidak memiliki akses untuk mengubah pengguna ini',
+      );
     }
     return this.usersService.update(id, updateUserDto);
   }

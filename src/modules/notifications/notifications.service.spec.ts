@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NotificationsService } from './notifications.service';
-import { Notification, NotificationStatus } from './entities/notification.entity';
+import {
+  Notification,
+  NotificationStatus,
+} from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { getQueueToken } from '@nestjs/bull';
 
@@ -67,13 +70,16 @@ describe('NotificationsService', () => {
 
       expect(repository.create).toHaveBeenCalledWith(createDto);
       expect(repository.save).toHaveBeenCalled();
-      expect(queue.add).toHaveBeenCalledWith('send', expect.objectContaining({
-        notificationId: expectedNotification.id,
-        channel: createDto.channel,
-        subject: createDto.subject,
-        message: createDto.message,
-        userId: createDto.user_id,
-      }));
+      expect(queue.add).toHaveBeenCalledWith(
+        'send',
+        expect.objectContaining({
+          notificationId: expectedNotification.id,
+          channel: createDto.channel,
+          subject: createDto.subject,
+          message: createDto.message,
+          userId: createDto.user_id,
+        }),
+      );
       expect(result).toEqual(expectedNotification);
     });
   });
@@ -124,11 +130,13 @@ describe('NotificationsService', () => {
 
       await service.sendPaymentConfirmation(userId, eventName);
 
-      expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({
-        user_id: userId,
-        subject: 'Pembayaran Berhasil',
-        channel: 'whatsapp',
-      }));
+      expect(repository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: userId,
+          subject: 'Pembayaran Berhasil',
+          channel: 'whatsapp',
+        }),
+      );
       expect(queue.add).toHaveBeenCalled();
     });
   });

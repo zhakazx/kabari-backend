@@ -7,10 +7,7 @@ export class RsvpController {
   constructor(private readonly rsvpService: RsvpService) {}
 
   @Post(':token')
-  create(
-    @Param('token') token: string,
-    @Body() createRsvpDto: CreateRsvpDto,
-  ) {
+  create(@Param('token') token: string, @Body() createRsvpDto: CreateRsvpDto) {
     return this.rsvpService.create(token, createRsvpDto);
   }
 

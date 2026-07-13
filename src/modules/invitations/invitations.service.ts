@@ -1,7 +1,17 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Invitation, InvitationCategory, RsvpStatus } from './entities/invitation.entity';
+import {
+  Invitation,
+  InvitationCategory,
+  RsvpStatus,
+  CheckInStatus,
+} from './entities/invitation.entity';
+import { InvitationQueryDto } from './dto/invitation-query.dto';
 import { CreateGuestDto } from './dto/create-invitation.dto';
 import { UpdateRsvpDto } from './dto/update-rsvp.dto';
 import { Event, EventStatus } from '../events/entities/event.entity';
@@ -49,11 +59,39 @@ export class InvitationsService {
     return this.invitationRepository.save(invitations);
   }
 
-  async findByEvent(eventId: string): Promise<Invitation[]> {
-    return this.invitationRepository.find({
+  async findByEvent(eventId: string, query: InvitationQueryDto = { page: 1, limit: 50 }) {
+    const { page, limit } = query;
+    const skip = (page! - 1) * limit!;
+
+    const [data, total] = await this.invitationRepository.findAndCount({
       where: { event_id: eventId },
+      skip,
+      take: limit,
       order: { created_at: 'DESC' },
     });
+
+    const [confirmedCount, checkedInCount] = await Promise.all([
+      this.invitationRepository.count({
+        where: { event_id: eventId, rsvp_status: RsvpStatus.HADIR },
+      }),
+      this.invitationRepository.count({
+        where: {
+          event_id: eventId,
+          check_in_status: CheckInStatus.SUDAH_CHECK_IN,
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        total_pages: Math.ceil(total / limit!),
+      },
+      counts: { confirmed: confirmedCount, checked_in: checkedInCount },
+    };
   }
 
   async findByQrToken(qrToken: string): Promise<Invitation> {
@@ -70,9 +108,12 @@ export class InvitationsService {
     return invitation;
   }
 
-  async updateRsvp(qrToken: string, updateRsvpDto: UpdateRsvpDto): Promise<Invitation> {
+  async updateRsvp(
+    qrToken: string,
+    updateRsvpDto: UpdateRsvpDto,
+  ): Promise<Invitation> {
     const invitation = await this.findByQrToken(qrToken);
-    
+
     invitation.rsvp_status = updateRsvpDto.rsvp_status;
     if (updateRsvpDto.jumlah_hadir) {
       invitation.jumlah_hadir = updateRsvpDto.jumlah_hadir;

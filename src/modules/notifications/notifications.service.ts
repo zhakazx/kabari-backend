@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Notification, NotificationStatus } from './entities/notification.entity';
+import {
+  Notification,
+  NotificationStatus,
+} from './entities/notification.entity';
+import { NotificationQueryDto } from './dto/notification-query.dto';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
@@ -31,11 +35,26 @@ export class NotificationsService {
     return saved;
   }
 
-  async findByUser(userId: string): Promise<Notification[]> {
-    return this.notificationRepository.find({
+  async findByUser(userId: string, query: NotificationQueryDto = { page: 1, limit: 50 }) {
+    const { page, limit } = query;
+    const skip = (page! - 1) * limit!;
+
+    const [data, total] = await this.notificationRepository.findAndCount({
       where: { user_id: userId },
+      skip,
+      take: limit,
       order: { created_at: 'DESC' },
     });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        total_pages: Math.ceil(total / limit!),
+      },
+    };
   }
 
   async markAsSent(id: string): Promise<void> {
@@ -52,7 +71,10 @@ export class NotificationsService {
   }
 
   // Helper methods for other services to trigger notifications
-  async sendPaymentConfirmation(userId: string, eventName: string): Promise<Notification> {
+  async sendPaymentConfirmation(
+    userId: string,
+    eventName: string,
+  ): Promise<Notification> {
     return this.create({
       user_id: userId,
       subject: 'Pembayaran Berhasil',
@@ -61,7 +83,11 @@ export class NotificationsService {
     });
   }
 
-  async sendRsvpNotification(userId: string, tamuName: string, eventName: string): Promise<Notification> {
+  async sendRsvpNotification(
+    userId: string,
+    tamuName: string,
+    eventName: string,
+  ): Promise<Notification> {
     return this.create({
       user_id: userId,
       subject: 'RSVP Diterima',
@@ -70,7 +96,11 @@ export class NotificationsService {
     });
   }
 
-  async sendEventReminder(userId: string, eventName: string, eventDate: string): Promise<Notification> {
+  async sendEventReminder(
+    userId: string,
+    eventName: string,
+    eventDate: string,
+  ): Promise<Notification> {
     return this.create({
       user_id: userId,
       subject: 'Pengingat Acara',

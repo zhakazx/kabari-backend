@@ -31,6 +31,8 @@ export class AnalyticsController {
   @Get('revenue-trend')
   @Roles(UserRole.ADMIN)
   getRevenueTrend(@Query('days') days?: string) {
-    return this.analyticsService.getRevenueTrend(days ? parseInt(days, 10) : 30);
+    return this.analyticsService.getRevenueTrend(
+      days ? parseInt(days, 10) : 30,
+    );
   }
 }

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invitation } from '../invitations/entities/invitation.entity';
@@ -14,7 +18,10 @@ export class ReportsService {
     private readonly eventRepository: Repository<Event>,
   ) {}
 
-  async generateGuestReportXLSX(eventId: string, ownerId: string): Promise<Buffer> {
+  async generateGuestReportXLSX(
+    eventId: string,
+    ownerId: string,
+  ): Promise<Buffer> {
     const event = await this.eventRepository.findOne({
       where: { id: eventId },
     });
@@ -41,7 +48,14 @@ export class ReportsService {
     worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
     // Headers
-    worksheet.getRow(3).values = ['No', 'Nama Tamu', 'No. HP', 'Email', 'RSVP', 'Check-in'];
+    worksheet.getRow(3).values = [
+      'No',
+      'Nama Tamu',
+      'No. HP',
+      'Email',
+      'RSVP',
+      'Check-in',
+    ];
     worksheet.getRow(3).font = { bold: true };
 
     // Data

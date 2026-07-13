@@ -3,9 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../users/entities/user.entity';
 import { Event, EventStatus } from '../events/entities/event.entity';
-import { Template, TemplateStatus } from '../templates/entities/template.entity';
+import {
+  Template,
+  TemplateStatus,
+} from '../templates/entities/template.entity';
 import { Order, OrderStatus } from '../orders/entities/order.entity';
-import { Invitation, RsvpStatus, CheckInStatus } from '../invitations/entities/invitation.entity';
+import {
+  Invitation,
+  RsvpStatus,
+  CheckInStatus,
+} from '../invitations/entities/invitation.entity';
 import { TemplateSale } from '../orders/entities/template-sale.entity';
 
 export interface PlatformKpi {
@@ -95,7 +102,11 @@ export class AnalyticsService {
       total_events: Number(totalEvents),
       events_by_status: this.arrayToObject(eventsByStatus, 'status', 'count'),
       total_templates: Number(totalTemplates),
-      templates_by_status: this.arrayToObject(templatesByStatus, 'status', 'count'),
+      templates_by_status: this.arrayToObject(
+        templatesByStatus,
+        'status',
+        'count',
+      ),
       total_revenue: Number(revenueResult?.total || 0),
       orders_by_status: this.arrayToObject(ordersByStatus, 'status', 'count'),
     };
@@ -123,19 +134,27 @@ export class AnalyticsService {
       .getRawMany();
 
     const checkedInCount = await this.invitationRepository.count({
-      where: { event_id: eventId, check_in_status: CheckInStatus.SUDAH_CHECK_IN },
+      where: {
+        event_id: eventId,
+        check_in_status: CheckInStatus.SUDAH_CHECK_IN,
+      },
     });
 
     const hadirCount = await this.invitationRepository.count({
       where: { event_id: eventId, rsvp_status: RsvpStatus.HADIR },
     });
 
-    const attendanceRate = hadirCount > 0 ? (checkedInCount / hadirCount) * 100 : 0;
+    const attendanceRate =
+      hadirCount > 0 ? (checkedInCount / hadirCount) * 100 : 0;
 
     return {
       total_invitations: Number(totalInvitations),
       rsvp_breakdown: this.arrayToObject(rsvpBreakdown, 'status', 'count'),
-      check_in_breakdown: this.arrayToObject(checkInBreakdown, 'status', 'count'),
+      check_in_breakdown: this.arrayToObject(
+        checkInBreakdown,
+        'status',
+        'count',
+      ),
       attendance_rate: Math.round(attendanceRate * 100) / 100,
     };
   }

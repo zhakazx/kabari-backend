@@ -2,7 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RsvpConfirmation } from './entities/rsvp-confirmation.entity';
-import { Invitation, RsvpStatus } from '../invitations/entities/invitation.entity';
+import {
+  Invitation,
+  RsvpStatus,
+} from '../invitations/entities/invitation.entity';
 import { CreateRsvpDto } from './dto/create-rsvp.dto';
 import { DashboardGateway } from '../../gateways/dashboard.gateway';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -18,7 +21,10 @@ export class RsvpService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async create(qrToken: string, createRsvpDto: CreateRsvpDto): Promise<RsvpConfirmation> {
+  async create(
+    qrToken: string,
+    createRsvpDto: CreateRsvpDto,
+  ): Promise<RsvpConfirmation> {
     const invitation = await this.invitationRepository.findOne({
       where: { qr_code_token: qrToken },
       relations: ['event'],

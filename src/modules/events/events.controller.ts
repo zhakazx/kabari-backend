@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   UseGuards,
   UploadedFiles,
   UseInterceptors,
@@ -14,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { EventsService } from './events.service';
+import { EventQueryDto } from './dto/event-query.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -21,7 +23,10 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
-import { storageConfig, imageFileFilter } from '../../common/utils/storage.util';
+import {
+  storageConfig,
+  imageFileFilter,
+} from '../../common/utils/storage.util';
 import * as path from 'path';
 
 @Controller('events')
@@ -40,8 +45,11 @@ export class EventsController {
 
   @Get()
   @Roles(UserRole.PELANGGAN)
-  findAll(@CurrentUser() user: { user_id: string }) {
-    return this.eventsService.findAllByPelanggan(user.user_id);
+  findAll(
+    @CurrentUser() user: { user_id: string },
+    @Query() query: EventQueryDto,
+  ) {
+    return this.eventsService.findAllByPelanggan(user.user_id, query);
   }
 
   @Get(':id')
@@ -62,10 +70,7 @@ export class EventsController {
 
   @Delete(':id')
   @Roles(UserRole.PELANGGAN)
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: { user_id: string },
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: { user_id: string }) {
     return this.eventsService.remove(id, user.user_id);
   }
 
@@ -81,14 +86,11 @@ export class EventsController {
   @Post(':id/gallery')
   @Roles(UserRole.PELANGGAN)
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [{ name: 'gallery', maxCount: 10 }],
-      {
-        storage: storageConfig(path.join(process.cwd(), 'uploads', 'gallery')),
-        fileFilter: imageFileFilter,
-        limits: { fileSize: 10 * 1024 * 1024 },
-      },
-    ),
+    FileFieldsInterceptor([{ name: 'gallery', maxCount: 10 }], {
+      storage: storageConfig(path.join(process.cwd(), 'uploads', 'gallery')),
+      fileFilter: imageFileFilter,
+      limits: { fileSize: 10 * 1024 * 1024 },
+    }),
   )
   async uploadGallery(
     @Param('id') id: string,

@@ -1,12 +1,7 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  UseGuards,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Param } from '@nestjs/common';
 import { OrdersService } from './orders.service';
+import { OrderQueryDto } from './dto/order-query.dto';
+import { RoyaltyQueryDto } from './dto/royalty-query.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentCallbackDto } from './dto/payment-callback.dto';
@@ -33,8 +28,11 @@ export class OrdersController {
 
   @Get()
   @Roles(UserRole.PELANGGAN)
-  findAll(@CurrentUser() user: { user_id: string }) {
-    return this.ordersService.findAllByPelanggan(user.user_id);
+  findAll(
+    @CurrentUser() user: { user_id: string },
+    @Query() query: OrderQueryDto,
+  ) {
+    return this.ordersService.findAllByPelanggan(user.user_id, query);
   }
 
   @Get('packages')
@@ -63,7 +61,10 @@ export class OrdersController {
 
   @Get('royalties/my-royalties')
   @Roles(UserRole.KREATOR)
-  getMyRoyalties(@CurrentUser() user: { user_id: string }) {
-    return this.ordersService.getRoyaltyForCreator(user.user_id);
+  getMyRoyalties(
+    @CurrentUser() user: { user_id: string },
+    @Query() query: RoyaltyQueryDto,
+  ) {
+    return this.ordersService.getRoyaltyForCreator(user.user_id, query);
   }
 }

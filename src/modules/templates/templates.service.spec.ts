@@ -63,7 +63,12 @@ describe('TemplatesService', () => {
       repository.create.mockReturnValue(expectedTemplate as any);
       repository.save.mockResolvedValue(expectedTemplate as any);
 
-      const result = await service.create(createDto, creatorId, thumbnailUrl, fileUrl);
+      const result = await service.create(
+        createDto,
+        creatorId,
+        thumbnailUrl,
+        fileUrl,
+      );
 
       expect(repository.create).toHaveBeenCalledWith({
         ...createDto,
@@ -145,7 +150,7 @@ describe('TemplatesService', () => {
         ...template,
         status: TemplateStatus.PUBLISHED,
         admin_notes: 'Looks good',
-      } as Template);
+      });
 
       const result = await service.updateStatus('1', updateDto);
 

@@ -11,7 +11,9 @@ export class NotificationProcessor {
     const { notificationId, channel, subject, message, userId } = job.data;
 
     try {
-      console.log(`[Notification] Sending ${channel} notification to user ${userId}: ${subject}`);
+      console.log(
+        `[Notification] Sending ${channel} notification to user ${userId}: ${subject}`,
+      );
 
       // Simulate sending based on channel
       switch (channel) {
@@ -36,7 +38,10 @@ export class NotificationProcessor {
 
       return { success: true, notificationId };
     } catch (error) {
-      console.error(`[Notification] Failed to send notification ${notificationId}:`, error);
+      console.error(
+        `[Notification] Failed to send notification ${notificationId}:`,
+        error,
+      );
       await this.notificationsService.markAsFailed(notificationId);
       throw error;
     }

@@ -22,7 +22,10 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
-import { storageConfig, imageFileFilter } from '../../common/utils/storage.util';
+import {
+  storageConfig,
+  imageFileFilter,
+} from '../../common/utils/storage.util';
 import * as path from 'path';
 
 @Controller('templates')
@@ -44,7 +47,9 @@ export class TemplatesController {
         { name: 'template_file', maxCount: 1 },
       ],
       {
-        storage: storageConfig(path.join(process.cwd(), 'uploads', 'templates')),
+        storage: storageConfig(
+          path.join(process.cwd(), 'uploads', 'templates'),
+        ),
         fileFilter: (req, file, callback) => {
           if (file.fieldname === 'thumbnail') {
             return imageFileFilter(req, file, callback);
@@ -91,7 +96,9 @@ export class TemplatesController {
         { name: 'template_file', maxCount: 1 },
       ],
       {
-        storage: storageConfig(path.join(process.cwd(), 'uploads', 'templates')),
+        storage: storageConfig(
+          path.join(process.cwd(), 'uploads', 'templates'),
+        ),
         fileFilter: (req, file, callback) => {
           if (file.fieldname === 'thumbnail') {
             return imageFileFilter(req, file, callback);
