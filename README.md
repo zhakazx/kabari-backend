@@ -55,22 +55,17 @@ JWT_SECRET=kabari-dev-secret-key-do-not-use-in-production
 JWT_EXPIRATION=7d
 
 # Database (PostgreSQL)
-DB_HOST=localhost
-DB_PORT=5433
-DB_USERNAME=kabari_user
-DB_PASSWORD=kabari_pass
-DB_NAME=kabari_db
+DATABASE_URL=postgresql://kabari_user:kabari_pass@localhost:5433/kabari_db
 
 # Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
+REDIS_URL=redis://localhost:6379
 
 # File Upload
 UPLOAD_DEST=./uploads
 MAX_FILE_SIZE=10485760
 ```
 
-> **Catatan:** Jika menjalankan PostgreSQL/Redis via Podman/Docker, sesuaikan `DB_HOST` dan `REDIS_HOST` (biasanya `localhost` dengan port mapping).
+> **Catatan:** Jika menjalankan PostgreSQL/Redis via Podman/Docker, sesuaikan `DATABASE_URL` dan `REDIS_URL` sesuai port mapping yang digunakan.
 
 ## Database Setup (Podman/Docker)
 
