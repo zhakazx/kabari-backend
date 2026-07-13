@@ -1,24 +1,10 @@
 import { Pool } from 'pg';
 import * as bcrypt from 'bcrypt';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 import { randomUUID } from 'crypto';
 
-// ---------------------------------------------------------------------------
-// Load .env
-// ---------------------------------------------------------------------------
-const envPath = resolve(__dirname, '..', '.env');
-const envContent = readFileSync(envPath, 'utf-8');
-for (const line of envContent.split('\n')) {
-  const trimmed = line.trim();
-  if (trimmed && !trimmed.startsWith('#')) {
-    const eqIdx = trimmed.indexOf('=');
-    if (eqIdx > 0) {
-      const key = trimmed.slice(0, eqIdx).trim();
-      const value = trimmed.slice(eqIdx + 1).trim();
-      if (!process.env[key]) process.env[key] = value;
-    }
-  }
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL environment variable is required');
+  process.exit(1);
 }
 
 const DB = new Pool({
